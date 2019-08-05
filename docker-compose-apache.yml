@@ -1,0 +1,69 @@
+version: "2"
+services:
+  apache:
+    build: ./apache
+    volumes: 
+      - ./apache/www/:/var/www
+      - ./apache/logs/:/usr/local/apache2/logs
+    ports:
+      - "8080:80"
+    container_name: httpd
+    depends_on:
+      - php
+    networks:
+      - default
+  php:
+    build: ./php
+    volumes:
+      - ./apache/www/:/var/www
+    container_name: fpm
+    expose:
+      - "9000"
+    networks: 
+      - default
+  mysql: 
+    image: mysql:8.0.16
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+    container_name: mysql
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./mysql/data/:/var/lib/mysql/
+      - ./mysql/logs/:/var/log/mysql/
+    networks:
+      - default
+  redis:
+    build: ./redis
+    volumes:
+      - ./redis/data/:/data/
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - default
+  mongo:
+    image: mongo:3.6.2
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongo/data:/data/db
+    networks:
+      - default
+  rabbitmq:
+    build: ./rabbitmq
+    container_name: rabbitmq
+    ports:
+      - "15672:15672"
+      - "15671:15671"
+      - "5672:5672"
+    privileged: true
+    environment:
+      - RABBITMQ_DEFAULT_USER=qyc
+      - RABBITMQ_DEFAULT_PASS=qyc
+    networks:
+      - default
+networks:
+  default:
+    driver: "bridge"

@@ -1,0 +1,29 @@
+version: "2"
+services:
+  nginx:
+    build: ./nginx
+    volumes:
+      - ./code:/var/www
+      - ./nginx/logs:/var/log/nginx
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    ports:
+      - "81:80"
+    container_name: nginx
+    depends_on:
+      - php
+    networks:
+      - default
+  php:
+    build: ./php
+    volumes:
+      - ./code:/var/www
+      - ./php/php-fpm.site:/usr/local/etc/php-fpm.site
+      - ./php/log:/var/log/php-fpm
+    container_name: fpm
+    expose:
+      - "9000"
+    networks:
+      - default
+networks:
+  default:
+    driver: "bridge"
